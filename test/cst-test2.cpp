@@ -26,7 +26,9 @@
 /* std:: */
 #include <iostream>
 #include <limits>
-#include <string>
+#include <sstream>
+#include <vector>
+#include <stdint.h>
 using namespace std;
 
 int
@@ -39,5 +41,25 @@ main( int argc,
     cout <<"cmax: " << cmax << endl;
 
     cout << hex << 0x20 << endl;
+    cout << 0x20 << endl;   /**< does it 'stick' ? */   /* yep */
+
+    /* use stringstream to build something as a dumper
+       (like a pkt dumper) */
+    stringstream ss;
+    ss << "test" << hex << 0x20;
+    cout << ss.str() << endl;
+
+    cout << endl << endl;
+
+    /* try something pkt dumper like */
+    uint8_t const data[] = { 0x11, 0x22, 0x33, 0xaa };
+    vector<uint8_t> const v( data, data+sizeof(data) );
+
+    cout << "data: " << hex << showbase << 0x10 << " "
+         << 0x110 << " " << static_cast<int>(data[3]) << endl;
+    ss.str("");
+
+    // 8 hex .. space .. 8 ascii if printable
+
 }
 
