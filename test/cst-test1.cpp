@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE( encode_nothing )
     auto_ptr<vector<uint8_t> const> const v( feEncoder::encode( pkt ) ) ;
 
     BOOST_REQUIRE( v.get() != 0 );          /**< exists .. */
-    BOOST_CHECK( v.get()->empty() );        /**< but empty */
+    BOOST_CHECK( v->empty() );              /**< but empty */
 }
 
 BOOST_AUTO_TEST_CASE( encode_something )
@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE( encode_something )
     BOOST_REQUIRE( v.get() != 0 );
 
     /* nothing was encoded, ends up being a copy straight across */
-    BOOST_CHECK_EQUAL_COLLECTIONS( v.get()->begin(), v.get()->end(),
+    BOOST_CHECK_EQUAL_COLLECTIONS( v->begin(), v->end(),
                                    pkt.begin(), pkt.end() );
 }
 
@@ -132,7 +132,7 @@ BOOST_AUTO_TEST_CASE( encode_STX_only )
     BOOST_REQUIRE( v.get() != 0 );
 
     uint8_t const expected[] = { feEncoder::ESC, (feEncoder::STX ^ 0xFF) };
-    BOOST_CHECK_EQUAL_COLLECTIONS( v.get()->begin(), v.get()->end(),
+    BOOST_CHECK_EQUAL_COLLECTIONS( v->begin(), v->end(),
                                    expected, expected+sizeof(expected) );
 }
 
@@ -145,7 +145,7 @@ BOOST_AUTO_TEST_CASE( encode_ETX_only )
     BOOST_REQUIRE( v.get() != 0 );
 
     uint8_t const expected[] = { feEncoder::ESC, (feEncoder::ETX ^ 0xFF) };
-    BOOST_CHECK_EQUAL_COLLECTIONS( v.get()->begin(), v.get()->end(),
+    BOOST_CHECK_EQUAL_COLLECTIONS( v->begin(), v->end(),
                                    expected, expected+sizeof(expected) );
 }
 
@@ -158,7 +158,7 @@ BOOST_AUTO_TEST_CASE( encode_ESC_only )
     BOOST_REQUIRE( v.get() != 0 );
 
     uint8_t const expected[] = { feEncoder::ESC, (feEncoder::ESC ^ 0xFF) };
-    BOOST_CHECK_EQUAL_COLLECTIONS( v.get()->begin(), v.get()->end(),
+    BOOST_CHECK_EQUAL_COLLECTIONS( v->begin(), v->end(),
                                    expected, expected+sizeof(expected) );
 }
 
@@ -179,6 +179,6 @@ BOOST_AUTO_TEST_CASE( encode_all_framed_by_junk )
                                  feEncoder::ESC, (feEncoder::ETX ^ 0xFF),
                                  feEncoder::ESC, (feEncoder::STX ^ 0xFF),
                                  0x22, 0x33 };
-    BOOST_CHECK_EQUAL_COLLECTIONS( v.get()->begin(), v.get()->end(),
+    BOOST_CHECK_EQUAL_COLLECTIONS( v->begin(), v->end(),
                                    expected, expected+sizeof(expected) );
 }
