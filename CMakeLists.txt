@@ -14,7 +14,9 @@ find_package( Boost COMPONENTS
               program_options
               )
 
-link_directories( ${Boost_LIBRARY_DIRS} )
+link_directories( ${Boost_LIBRARY_DIRS}
+                  ./lib
+                  )
 include_directories( ${Boost_INCLUDE_DIRS}
                      ./inc
                      )
@@ -40,6 +42,7 @@ set( DIRS
 
 set( LIBS
      ${Boost_LIBRARIES}
+     fe
      )
 
 set( EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin" )

@@ -25,11 +25,15 @@
 
 #include "main.h"
 
-/* boost::program_options */
+/* boost::program_options:: */
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/variables_map.hpp>
 #include <boost/program_options/parsers.hpp>
 namespace po = boost::program_options;
+
+/* boost::asio:: */
+#include <boost/asio/serial_port.hpp>
+using namespace boost::asio;
 
 /* std:: */
 #include <string>
@@ -56,6 +60,11 @@ main( int argc,
         return 0;
     }
 
+    io_service io;
+    serial_port sp( io );
+
+    sp.open( "/dev/ttyS0" );       /**< attempt to open a port */
+
     /* start with bunch of repetitive stx's and etx's only */
 
     /* move to empty pkts */
@@ -63,6 +72,8 @@ main( int argc,
     /* move to echo pkts */
 
     /* move to ... */
+
+    sp.close();
 
     return 0;   /**< TODO: implement !0 on failure for future automation plans */
 }
