@@ -57,8 +57,8 @@ std::vector<uint8_t> *
         {
             b ^= 0xFF;
             /* this byte can ONLY be 3 possible values: */
-            if( (b != fe::STX) ||
-                (b != fe::ETX) ||
+            if( (b != fe::STX) &&
+                (b != fe::ETX) &&
                 (b != fe::ESC) )
             {
                 /* if not, destroy and throw */
