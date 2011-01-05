@@ -31,6 +31,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "fe.h"
+#include "fe_exception.h"
 using namespace std;
 using namespace fe;
 
@@ -67,4 +68,63 @@ BOOST_AUTO_TEST_CASE( decode_STX_only )
     uint8_t const expected[] = { STX };
     BOOST_CHECK_EQUAL_COLLECTIONS( v->begin(), v->end(),
                                    expected, expected+sizeof(expected) );
+}
+
+BOOST_AUTO_TEST_CASE( decode_ETX_only )
+{
+    uint8_t const data[] = { ESC, (ETX ^ 0xFF) };
+    vector<uint8_t> const pkt( data, data+sizeof(data) );
+    auto_ptr<vector<uint8_t> const> const v( decode( pkt ) ) ;
+
+    BOOST_REQUIRE( v.get() != 0 );
+
+    uint8_t const expected[] = { ETX };
+    BOOST_CHECK_EQUAL_COLLECTIONS( v->begin(), v->end(),
+                                   expected, expected+sizeof(expected) );
+}
+
+BOOST_AUTO_TEST_CASE( decode_ESC_only )
+{
+    uint8_t const data[] = { ESC, (ESC ^ 0xFF) };
+    vector<uint8_t> const pkt( data, data+sizeof(data) );
+    auto_ptr<vector<uint8_t> const> const v( decode( pkt ) ) ;
+
+    BOOST_REQUIRE( v.get() != 0 );
+
+    uint8_t const expected[] = { ESC };
+    BOOST_CHECK_EQUAL_COLLECTIONS( v->begin(), v->end(),
+                                   expected, expected+sizeof(expected) );
+}
+
+BOOST_AUTO_TEST_CASE( decode_all_framed_by_junk )
+{
+    uint8_t const data[] = { 0x11,
+                             ESC, (ESC ^ 0xFF),
+                             ESC, (ETX ^ 0xFF),
+                             0x66,
+                             ESC, (STX ^ 0xFF),
+                             0x22, 0x33 };
+    vector<uint8_t> const pkt( data, data+sizeof(data) );
+    auto_ptr<vector<uint8_t> const> const v( decode( pkt ) ) ;
+
+    BOOST_REQUIRE( v.get() != 0 );
+
+    uint8_t const expected[] = { 0x11,
+                                 ESC,
+                                 ETX,
+                                 0x66,
+                                 STX,
+                                 0x22, 0x33 };
+    BOOST_CHECK_EQUAL_COLLECTIONS( v->begin(), v->end(),
+                                   expected, expected+sizeof(expected) );
+}
+
+BOOST_AUTO_TEST_CASE( throw_on_bad_byte_after_ESC )
+{
+    uint8_t const data[] = { ESC, (0x99 ^ 0xFF) };
+    vector<uint8_t> const pkt( data, data+sizeof(data) );
+
+    BOOST_REQUIRE_THROW(
+      auto_ptr<vector<uint8_t> const> const v( decode( pkt ) ),
+      escxor_error ) ;
 }
