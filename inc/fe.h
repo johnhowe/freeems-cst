@@ -27,6 +27,7 @@
 
 #include <stdint.h>
 #include <vector>
+#include "fe_exception.h"
 
 namespace fe
 {
@@ -46,6 +47,12 @@ namespace fe
   };
 
   /**
+   * default reservation size for packet encode
+   * and decode buffers
+   */
+  uint32_t const default_resv_size = 1024 * 4;
+
+  /**
    * @public
    * @brief encode a flattened packet
    * @param[in] p reference to flattened packet
@@ -55,6 +62,17 @@ namespace fe
    */
   std::vector<uint8_t> *
     encode( std::vector<uint8_t> const &p );
+
+  /**
+   * @brief decode to a flattened packet
+   * @param[in] p reference to encoded packet
+   * @retval vector<uint8_t> decoded packet. caller is responsible for
+   *                         destruction when use is complete.
+   * @throw escxor_error
+   */
+   std::vector<uint8_t> *
+     decode( std::vector<uint8_t> const &p )
+       throw( escxor_error );
 
 }
 

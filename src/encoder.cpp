@@ -1,8 +1,8 @@
 /**
  * @file       encoder.cpp
- * @headerfile
+ * @headerfile fe.h
  * @author     sean
- * @brief      fe::encoder
+ * @brief      fe::encoder implementation
  *
  * freeems-cst: freeems 'comms smoke test'
  *
@@ -37,7 +37,7 @@ std::vector<uint8_t> *
   fe::encode( std::vector<uint8_t> const &p )
 {
     std::vector<uint8_t> *const v = new std::vector<uint8_t>();
-    v->reserve( 1024 * 4 );     /**< reserve initial worst case capacity */
+    v->reserve( default_resv_size ); /**< reserve initial worst case capacity */
 
     std::vector<uint8_t>::const_iterator pkt_iter = p.begin();
     while( pkt_iter != p.end() )
