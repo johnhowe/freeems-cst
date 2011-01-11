@@ -1,12 +1,11 @@
 /**
- * @file       wsp.cpp
- * @headerfile wsp.h
- * @author     sean
- * @brief      fe::win_serial_port implementation
+ * @file   wsp.h
+ * @author sean
+ * @brief  windows serial port declaration
  *
  * freeems-cst: freeems 'comms smoke test'
  *
- * Copyright (C) 2011 Sean Stasiak sstasiak at gmail
+ * Copyright (C) 2010, 2011 Sean Stasiak sstasiak at gmail
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,4 +22,16 @@
  *
  */
 
-#include "wsp.h"
+#ifndef   __wsp_h
+#define   __wsp_h
+
+#include "sp.h"
+
+namespace fe
+{
+    class win_serial_port : public serial_port
+    {
+    };
+}
+
+#endif // __wsp_h

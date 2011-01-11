@@ -1,12 +1,11 @@
 /**
- * @file       wsp.cpp
- * @headerfile wsp.h
- * @author     sean
- * @brief      fe::win_serial_port implementation
+ * @file   psp.h
+ * @author sean
+ * @brief  posix serial port declaration
  *
  * freeems-cst: freeems 'comms smoke test'
  *
- * Copyright (C) 2011 Sean Stasiak sstasiak at gmail
+ * Copyright (C) 2010, 2011 Sean Stasiak sstasiak at gmail
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,4 +22,28 @@
  *
  */
 
-#include "wsp.h"
+#ifndef   __psp_h
+#define   __psp_h
+
+#include "sp.h"
+
+/* std:: */
+#include <string>
+
+namespace fe
+{
+    class posix_serial_port : public serial_port
+    {
+      public:
+        explicit posix_serial_port( std::string const &path );
+
+        virtual void read( void ) {};
+        virtual void write( void ) {};
+        virtual ~posix_serial_port();
+
+      private:
+        int fd;
+    };
+}
+
+#endif // __psp_h

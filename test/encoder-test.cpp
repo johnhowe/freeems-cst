@@ -47,7 +47,7 @@ BOOST_AUTO_TEST_CASE( encode_nothing )
 BOOST_AUTO_TEST_CASE( encode_something )
 {
     uint8_t const data[] = { 0x00, 0x01, 0x02 };
-    vector<uint8_t> const pkt( data, data+sizeof(data) );
+    vector<uint8_t> const pkt( data, data+EDIM(data) );
     auto_ptr<vector<uint8_t> const> const v( endec::encode( pkt ) ) ;
 
     BOOST_REQUIRE( v.get() != 0 );
@@ -60,20 +60,20 @@ BOOST_AUTO_TEST_CASE( encode_something )
 BOOST_AUTO_TEST_CASE( encode_STX_only )
 {
     uint8_t const data[] = { endec::STX };
-    vector<uint8_t> const pkt( data, data+sizeof(data) );
+    vector<uint8_t> const pkt( data, data+EDIM(data) );
     auto_ptr<vector<uint8_t> const> const v( endec::encode( pkt ) ) ;
 
     BOOST_REQUIRE( v.get() != 0 );
 
     uint8_t const expected[] = { endec::ESC, (endec::STX ^ 0xFF) };
     BOOST_CHECK_EQUAL_COLLECTIONS( v->begin(), v->end(),
-                                   expected, expected+sizeof(expected) );
+                                   expected, expected+EDIM(expected) );
 }
 
 BOOST_AUTO_TEST_CASE( encode_ETX_only )
 {
     uint8_t const data[] = { endec::ETX };
-    vector<uint8_t> const pkt( data, data+sizeof(data) );
+    vector<uint8_t> const pkt( data, data+EDIM(data) );
     auto_ptr<vector<uint8_t> const> const v( endec::encode( pkt ) ) ;
 
     BOOST_REQUIRE( v.get() != 0 );
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE( encode_ETX_only )
 BOOST_AUTO_TEST_CASE( encode_ESC_only )
 {
     uint8_t const data[] = { endec::ESC };
-    vector<uint8_t> const pkt( data, data+sizeof(data) );
+    vector<uint8_t> const pkt( data, data+EDIM(data) );
     auto_ptr<vector<uint8_t> const> const v( endec::encode( pkt ) ) ;
 
     BOOST_REQUIRE( v.get() != 0 );
@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE( encode_all_framed_by_junk )
                              endec::ETX,
                              endec::STX,
                              0x22, 0x33 };
-    vector<uint8_t> const pkt( data, data+sizeof(data) );
+    vector<uint8_t> const pkt( data, data+EDIM(data) );
     auto_ptr<vector<uint8_t> const> const v( endec::encode( pkt ) ) ;
 
     BOOST_REQUIRE( v.get() != 0 );

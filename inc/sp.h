@@ -25,9 +25,6 @@
 #ifndef   __sp_h
 #define   __sp_h
 
-/* std:: */
-#include <string>
-
 namespace fe
 {
     /* add util func to find_first() from a list of supplied paths */
@@ -40,23 +37,6 @@ namespace fe
         virtual ~serial_port() {};
       protected:
         serial_port() {};
-    };
-
-    class posix_serial_port : public serial_port
-    {
-      public:
-        explicit posix_serial_port( std::string const &path );
-
-        virtual void read( void ) {};
-        virtual void write( void ) {};
-        virtual ~posix_serial_port();
-
-      private:
-        int fd;
-    };
-
-    class win_serial_port : public serial_port
-    {
     };
 }
 

@@ -1,6 +1,6 @@
 /**
  * @file       psp.cpp
- * @headerfile sp.h
+ * @headerfile psp.h
  * @author     sean
  * @brief      fe::posix_serial_port implementation
  *
@@ -23,7 +23,7 @@
  *
  */
 
-#include "sp.h"
+#include "psp.h"
 
 /* std:: */
 #include <stdexcept>
@@ -40,21 +40,21 @@ using namespace std;
 using namespace fe;
 
 posix_serial_port::posix_serial_port( std::string const &path )
-    {
-        fd = open( path.c_str() , O_RDWR | O_NOCTTY );
-        if( fd < 0 )
-        {
-            throw std::runtime_error( strerror(errno) );
-        }
-        // attempt lock
-        // throw on fail
-    }
+{
+  fd = open( path.c_str(), O_RDWR | O_NOCTTY );
+  if( fd < 0 )
+  {
+      throw std::runtime_error( strerror(errno) );
+  }
+  // attempt lock
+  // throw on fail
+}
 
 posix_serial_port::~posix_serial_port()
-    {
-        if( fd >= 0 )
-        {
-            // flush ? not sure if thats done on close
-            close( fd );    // check retval!
-        }
-    }
+{
+  if( fd >= 0 )
+  {
+      // flush ? not sure if thats done on close
+      close( fd );    // check retval!
+  }
+}
