@@ -39,6 +39,7 @@ endif( NOT APPLE )
 set( DIRS
      src
      test
+     lib
      )
 
 set( LIBS
