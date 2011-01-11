@@ -38,7 +38,7 @@ using namespace fe;
 BOOST_AUTO_TEST_CASE( encode_nothing )
 {
     vector<uint8_t> const pkt( 0 );
-    auto_ptr<vector<uint8_t> const> const v( encode( pkt ) ) ;
+    auto_ptr<vector<uint8_t> const> const v( endec::encode( pkt ) ) ;
 
     BOOST_REQUIRE( v.get() != 0 );          /**< exists .. */
     BOOST_CHECK( v->empty() );              /**< but empty */
@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE( encode_something )
 {
     uint8_t const data[] = { 0x00, 0x01, 0x02 };
     vector<uint8_t> const pkt( data, data+sizeof(data) );
-    auto_ptr<vector<uint8_t> const> const v( encode( pkt ) ) ;
+    auto_ptr<vector<uint8_t> const> const v( endec::encode( pkt ) ) ;
 
     BOOST_REQUIRE( v.get() != 0 );
 
@@ -59,39 +59,39 @@ BOOST_AUTO_TEST_CASE( encode_something )
 
 BOOST_AUTO_TEST_CASE( encode_STX_only )
 {
-    uint8_t const data[] = { STX };
+    uint8_t const data[] = { endec::STX };
     vector<uint8_t> const pkt( data, data+sizeof(data) );
-    auto_ptr<vector<uint8_t> const> const v( encode( pkt ) ) ;
+    auto_ptr<vector<uint8_t> const> const v( endec::encode( pkt ) ) ;
 
     BOOST_REQUIRE( v.get() != 0 );
 
-    uint8_t const expected[] = { ESC, (STX ^ 0xFF) };
+    uint8_t const expected[] = { endec::ESC, (endec::STX ^ 0xFF) };
     BOOST_CHECK_EQUAL_COLLECTIONS( v->begin(), v->end(),
                                    expected, expected+sizeof(expected) );
 }
 
 BOOST_AUTO_TEST_CASE( encode_ETX_only )
 {
-    uint8_t const data[] = { ETX };
+    uint8_t const data[] = { endec::ETX };
     vector<uint8_t> const pkt( data, data+sizeof(data) );
-    auto_ptr<vector<uint8_t> const> const v( encode( pkt ) ) ;
+    auto_ptr<vector<uint8_t> const> const v( endec::encode( pkt ) ) ;
 
     BOOST_REQUIRE( v.get() != 0 );
 
-    uint8_t const expected[] = { ESC, (ETX ^ 0xFF) };
+    uint8_t const expected[] = { endec::ESC, (endec::ETX ^ 0xFF) };
     BOOST_CHECK_EQUAL_COLLECTIONS( v->begin(), v->end(),
                                    expected, expected+sizeof(expected) );
 }
 
 BOOST_AUTO_TEST_CASE( encode_ESC_only )
 {
-    uint8_t const data[] = { ESC };
+    uint8_t const data[] = { endec::ESC };
     vector<uint8_t> const pkt( data, data+sizeof(data) );
-    auto_ptr<vector<uint8_t> const> const v( encode( pkt ) ) ;
+    auto_ptr<vector<uint8_t> const> const v( endec::encode( pkt ) ) ;
 
     BOOST_REQUIRE( v.get() != 0 );
 
-    uint8_t const expected[] = { ESC, (ESC ^ 0xFF) };
+    uint8_t const expected[] = { endec::ESC, (endec::ESC ^ 0xFF) };
     BOOST_CHECK_EQUAL_COLLECTIONS( v->begin(), v->end(),
                                    expected, expected+sizeof(expected) );
 }
@@ -99,19 +99,19 @@ BOOST_AUTO_TEST_CASE( encode_ESC_only )
 BOOST_AUTO_TEST_CASE( encode_all_framed_by_junk )
 {
     uint8_t const data[] = { 0x11,
-                             ESC,
-                             ETX,
-                             STX,
+                             endec::ESC,
+                             endec::ETX,
+                             endec::STX,
                              0x22, 0x33 };
     vector<uint8_t> const pkt( data, data+sizeof(data) );
-    auto_ptr<vector<uint8_t> const> const v( encode( pkt ) ) ;
+    auto_ptr<vector<uint8_t> const> const v( endec::encode( pkt ) ) ;
 
     BOOST_REQUIRE( v.get() != 0 );
 
     uint8_t const expected[] = { 0x11,
-                                 ESC, (ESC ^ 0xFF),
-                                 ESC, (ETX ^ 0xFF),
-                                 ESC, (STX ^ 0xFF),
+                                 endec::ESC, (endec::ESC ^ 0xFF),
+                                 endec::ESC, (endec::ETX ^ 0xFF),
+                                 endec::ESC, (endec::STX ^ 0xFF),
                                  0x22, 0x33 };
     BOOST_CHECK_EQUAL_COLLECTIONS( v->begin(), v->end(),
                                    expected, expected+sizeof(expected) );

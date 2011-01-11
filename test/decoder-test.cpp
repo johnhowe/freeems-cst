@@ -31,14 +31,13 @@
 #include <boost/test/unit_test.hpp>
 
 #include "fe.h"
-#include "fe_exception.h"
 using namespace std;
 using namespace fe;
 
 BOOST_AUTO_TEST_CASE( decode_nothing )
 {
     vector<uint8_t> const pkt( 0 );
-    auto_ptr<vector<uint8_t> const> const v( decode( pkt ) ) ;
+    auto_ptr<vector<uint8_t> const> const v( endec::decode( pkt ) ) ;
 
     BOOST_REQUIRE( v.get() != 0 );          /**< exists .. */
     BOOST_CHECK( v->empty() );              /**< but empty */
@@ -48,7 +47,7 @@ BOOST_AUTO_TEST_CASE( decode_something )
 {
     uint8_t const data[] = { 0x00, 0x01, 0x02 };
     vector<uint8_t> const pkt( data, data+sizeof(data) );
-    auto_ptr<vector<uint8_t> const> const v( decode( pkt ) ) ;
+    auto_ptr<vector<uint8_t> const> const v( endec::decode( pkt ) ) ;
 
     BOOST_REQUIRE( v.get() != 0 );
 
@@ -59,39 +58,39 @@ BOOST_AUTO_TEST_CASE( decode_something )
 
 BOOST_AUTO_TEST_CASE( decode_STX_only )
 {
-    uint8_t const data[] = { ESC, (STX ^ 0xFF) };
+    uint8_t const data[] = { endec::ESC, (endec::STX ^ 0xFF) };
     vector<uint8_t> const pkt( data, data+sizeof(data) );
-    auto_ptr<vector<uint8_t> const> const v( decode( pkt ) ) ;
+    auto_ptr<vector<uint8_t> const> const v( endec::decode( pkt ) ) ;
 
     BOOST_REQUIRE( v.get() != 0 );
 
-    uint8_t const expected[] = { STX };
+    uint8_t const expected[] = { endec::STX };
     BOOST_CHECK_EQUAL_COLLECTIONS( v->begin(), v->end(),
                                    expected, expected+sizeof(expected) );
 }
 
 BOOST_AUTO_TEST_CASE( decode_ETX_only )
 {
-    uint8_t const data[] = { ESC, (ETX ^ 0xFF) };
+    uint8_t const data[] = { endec::ESC, (endec::ETX ^ 0xFF) };
     vector<uint8_t> const pkt( data, data+sizeof(data) );
-    auto_ptr<vector<uint8_t> const> const v( decode( pkt ) ) ;
+    auto_ptr<vector<uint8_t> const> const v( endec::decode( pkt ) ) ;
 
     BOOST_REQUIRE( v.get() != 0 );
 
-    uint8_t const expected[] = { ETX };
+    uint8_t const expected[] = { endec::ETX };
     BOOST_CHECK_EQUAL_COLLECTIONS( v->begin(), v->end(),
                                    expected, expected+sizeof(expected) );
 }
 
 BOOST_AUTO_TEST_CASE( decode_ESC_only )
 {
-    uint8_t const data[] = { ESC, (ESC ^ 0xFF) };
+    uint8_t const data[] = { endec::ESC, (endec::ESC ^ 0xFF) };
     vector<uint8_t> const pkt( data, data+sizeof(data) );
-    auto_ptr<vector<uint8_t> const> const v( decode( pkt ) ) ;
+    auto_ptr<vector<uint8_t> const> const v( endec::decode( pkt ) ) ;
 
     BOOST_REQUIRE( v.get() != 0 );
 
-    uint8_t const expected[] = { ESC };
+    uint8_t const expected[] = { endec::ESC };
     BOOST_CHECK_EQUAL_COLLECTIONS( v->begin(), v->end(),
                                    expected, expected+sizeof(expected) );
 }
@@ -99,21 +98,21 @@ BOOST_AUTO_TEST_CASE( decode_ESC_only )
 BOOST_AUTO_TEST_CASE( decode_all_framed_by_junk )
 {
     uint8_t const data[] = { 0x11,
-                             ESC, (ESC ^ 0xFF),
-                             ESC, (ETX ^ 0xFF),
+                             endec::ESC, (endec::ESC ^ 0xFF),
+                             endec::ESC, (endec::ETX ^ 0xFF),
                              0x66,
-                             ESC, (STX ^ 0xFF),
+                             endec::ESC, (endec::STX ^ 0xFF),
                              0x22, 0x33 };
     vector<uint8_t> const pkt( data, data+sizeof(data) );
-    auto_ptr<vector<uint8_t> const> const v( decode( pkt ) ) ;
+    auto_ptr<vector<uint8_t> const> const v( endec::decode( pkt ) ) ;
 
     BOOST_REQUIRE( v.get() != 0 );
 
     uint8_t const expected[] = { 0x11,
-                                 ESC,
-                                 ETX,
+                                 endec::ESC,
+                                 endec::ETX,
                                  0x66,
-                                 STX,
+                                 endec::STX,
                                  0x22, 0x33 };
     BOOST_CHECK_EQUAL_COLLECTIONS( v->begin(), v->end(),
                                    expected, expected+sizeof(expected) );
@@ -121,10 +120,10 @@ BOOST_AUTO_TEST_CASE( decode_all_framed_by_junk )
 
 BOOST_AUTO_TEST_CASE( throw_on_bad_byte_after_ESC )
 {
-    uint8_t const data[] = { ESC, (0x99 ^ 0xFF) };
+    uint8_t const data[] = { endec::ESC, (0x99 ^ 0xFF) };
     vector<uint8_t> const pkt( data, data+sizeof(data) );
 
     BOOST_REQUIRE_THROW(
-      auto_ptr<vector<uint8_t> const> const v( decode( pkt ) ),
+      auto_ptr<vector<uint8_t> const> const v( endec::decode( pkt ) ),
       escxor_error ) ;
 }

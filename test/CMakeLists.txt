@@ -1,5 +1,6 @@
 set( TESTS
      cst-test0
+     cst-test1
      cst-test2
      encoder-test
      decoder-test

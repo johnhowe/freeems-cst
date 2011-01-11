@@ -1,12 +1,12 @@
 /**
- * @file       decoder.cpp
- * @headerfile fe.h
+ * @file       endec.cpp
+ * @headerfile endec.h
  * @author     sean
- * @brief      fe::decoder implementation
+ * @brief      fe::endec implementation
  *
  * freeems-cst: freeems 'comms smoke test'
  *
- * Copyright (C) 2011 Sean Stasiak sstasiak at gmail
+ * Copyright (C) 2010, 2011 Sean Stasiak sstasiak at gmail
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,16 @@
  *
  */
 
-#include "fe.h"
+#include "endec.h"
+using namespace fe;
+using namespace std;
+
+/**
+ * @private
+ * default reservation size for packet encode
+ * and decode buffers
+ */
+uint32_t const endec::default_resv_size = (1024 * 2);
 
 /**
  * @public
@@ -33,21 +42,21 @@
  *                         destruction when use is complete.
  * @throw escxor_error
  */
-std::vector<uint8_t> *
-  fe::decode( std::vector<uint8_t> const &p )
+vector<uint8_t> *
+  endec::decode( vector<uint8_t> const &p )
     throw( escxor_error )
 {
-    std::vector<uint8_t> *const v = new std::vector<uint8_t>();
+    vector<uint8_t> *const v = new vector<uint8_t>();
     v->reserve( default_resv_size ); /**< reserve initial worst case capacity */
 
     bool esc_prev = false;  /**< track if prev byte was an ESC */
 
-    for( std::vector<uint8_t>::const_iterator pkt_iter = p.begin();
+    for( vector<uint8_t>::const_iterator pkt_iter = p.begin();
       pkt_iter != p.end() ;pkt_iter++ )
     {
         uint8_t b = *pkt_iter;
 
-        if( b == fe::ESC )
+        if( b == ESC )
         {
             esc_prev = true;
             continue;
@@ -57,9 +66,9 @@ std::vector<uint8_t> *
         {
             b ^= 0xFF;
             /* this byte can ONLY be 3 possible values: */
-            if( (b != fe::STX) &&
-                (b != fe::ETX) &&
-                (b != fe::ESC) )
+            if( (b != STX) &&
+                (b != ETX) &&
+                (b != ESC) )
             {
                 /* if not, destroy and throw */
                 delete v;
@@ -68,6 +77,41 @@ std::vector<uint8_t> *
             esc_prev = false;
         }
         v->push_back( b );
+    }
+
+    return v;
+}
+
+/**
+ * @public
+ * @brief encode a flattened packet
+ * @param[in] p reference to flattened packet
+ * @retval vector<uint8_t> packet encoded in accordance with the freeems
+ *                         core protocol spec. caller is responsible for
+ *                         destruction when use is complete.
+ */
+vector<uint8_t> *
+  endec::encode( vector<uint8_t> const &p )
+{
+    vector<uint8_t> *const v = new vector<uint8_t>();
+    v->reserve( default_resv_size ); /**< reserve initial worst case capacity */
+
+    vector<uint8_t>::const_iterator pkt_iter = p.begin();
+    while( pkt_iter != p.end() )
+    {
+        uint8_t b = *pkt_iter;
+
+        /* ESC any reserved bytes in the stream */
+        if( (b == STX ) ||
+            (b == ETX ) ||
+            (b == ESC ) )
+        {
+            v->push_back( ESC );
+            b ^= 0xFF;
+        }
+
+        v->push_back( b );
+        pkt_iter++;
     }
 
     return v;

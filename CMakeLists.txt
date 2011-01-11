@@ -12,6 +12,7 @@ find_package( Boost COMPONENTS
               unit_test_framework
               system
               program_options
+              signals
               )
 
 link_directories( ${Boost_LIBRARY_DIRS}

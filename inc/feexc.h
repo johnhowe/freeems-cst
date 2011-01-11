@@ -1,11 +1,11 @@
 /**
- * @file   fe.h
+ * @file   feexc.h
  * @author sean
- * @brief  freeems library
+ * @brief  freeems library exceptions
  *
  * freeems-cst: freeems 'comms smoke test'
  *
- * Copyright (C) 2010,2011 Sean Stasiak sstasiak at gmail
+ * Copyright (C) 2011 Sean Stasiak sstasiak at gmail
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,10 +22,29 @@
  *
  */
 
-#ifndef   __fe_h
-#define   __fe_h
+#ifndef   __fe_exception_h
+#define   __fe_exception_h
 
-#include "endec.h"
-#include "sp.h"
+#include <stdexcept>
 
-#endif // __fe_h
+namespace fe
+{
+  class escxor_error : public std::runtime_error
+  {
+    /* an incorrectly xor'ed byte has followed
+       an esc byte */
+    public:
+      escxor_error( void ) :
+        runtime_error( "escxor_error: TODO: take an index" ) {}
+  };
+
+  class stx_error : public std::runtime_error
+  {
+    /* a STX arrived unexpectedly mid frame */
+    public:
+      stx_error( void ) :
+        runtime_error( "stx_error: TODO: take an index" ) {}
+  };
+}
+
+#endif // __fe_exception_h

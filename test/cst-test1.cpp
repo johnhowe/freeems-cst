@@ -1,7 +1,9 @@
 /**
- * @file   fe_exception.h
- * @author sean
- * @brief  freeems library exceptions
+ * @file       cst-test1.cpp
+ * @headerfile
+ * @author     sean
+ * @brief      figure out how to start wrapping up open()
+ *             read()/write()/select()
  *
  * freeems-cst: freeems 'comms smoke test'
  *
@@ -22,29 +24,34 @@
  *
  */
 
-#ifndef   __fe_exception_h
-#define   __fe_exception_h
+#include <cassert>
+#include "fe.h"
+using namespace std;
+using namespace fe;
 
-#include <stdexcept>
-
-namespace fe
+int
+main( int argc,
+      char *argv[] )
 {
-  class escxor_error : public std::runtime_error
-  {
-    /* an incorrectly xor'ed byte has followed
-       an esc byte */
-    public:
-      escxor_error( void ) :
-        runtime_error( "escxor_error: TODO: take an index" ) {}
-  };
+  (void)argc, (void)argv;
 
-  class stx_error : public std::runtime_error
-  {
-    /* a STX arrived unexpectedly mid frame */
-    public:
-      stx_error( void ) :
-        runtime_error( "stx_error: TODO: take an index" ) {}
-  };
+  /* in the future this operation will be aliased under a
+     find_first operation which abstracts away the platform
+     specifics:
+
+     serial_port *const sp = find_first( ordered_path_collection );
+     if( sp == 0 )
+     {
+        // fail
+     }
+
+      */
+
+  /* otherwise, brute force it until the above is implemented */
+  serial_port *const sp = new posix_serial_port( "/dev/ttyS0" );
+  assert( sp );
+  delete sp;
+
+  return 0;
 }
 
-#endif // __fe_exception_h
