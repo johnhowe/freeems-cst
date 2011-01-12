@@ -25,36 +25,112 @@
 
 #include "psp.h"
 
-/* std:: */
-#include <stdexcept>
-
 /* posix */
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
-#include <errno.h>
-#include <string.h>
-#include <assert.h>
+#include <cerrno>
+#include <cstring>
+#include <cassert>
+#include <unistd.h>
 
 using namespace std;
 using namespace fe;
 
+posix_serial_port::posix_serial_port()
+{
+  init_psp();
+}
+
 posix_serial_port::posix_serial_port( std::string const &path )
 {
-  fd = open( path.c_str(), O_RDWR | O_NOCTTY );
-  if( fd < 0 )
+  init_psp();
+  set_path( path );
+}
+
+void posix_serial_port::init_psp( void )
+{
+  fd = -1;
+  path = 0;
+}
+
+bool posix_serial_port::is_open( void )
+{
+    return fd > 0;
+}
+
+void posix_serial_port::set_path( std::string const &path )
+{
+  if( !is_open() )
   {
-      throw std::runtime_error( strerror(errno) );
+      if( path.empty() )
+      {
+          throw runtime_error( "empty path not allowed" );
+      }
+
+      if( this->path )
+      {
+          delete this->path;
+          this->path = 0;
+      }
+
+      this->path = new string( path );
   }
-  // attempt lock
-  // throw on fail
+}
+
+void posix_serial_port::get_path( std::string &path )
+{
+  path.clear();
+  if( this->path )
+  {
+      path.assign( *(this->path) );
+  }
+}
+
+void posix_serial_port::open( std::string const &path )
+{
+  set_path( path );
+  open();
+}
+
+void posix_serial_port::close( void )
+{
+  if( is_open() )
+  {
+      lockf( fd, F_ULOCK, 0 );
+      ::close( fd );
+      fd = -1;
+  }
+}
+
+void posix_serial_port::open( void )
+{
+  if( !is_open() )
+  {
+      if( !path )
+      {
+          throw runtime_error( "path to serial port does not exist" );
+      }
+
+      fd = ::open( path->c_str(), O_RDWR | O_NOCTTY | O_NDELAY );
+      if( (fd < 0) ||
+          lockf( fd, F_TLOCK, 0 ) ) /**< non-block! */
+      {
+          throw std::runtime_error( strerror(errno) );
+      }
+
+      /* TODO: do check to make sure we've opened a serial port
+         via tcgetattr */
+
+      /* if this is a serial port, setup as desired */
+  }
 }
 
 posix_serial_port::~posix_serial_port()
 {
-  if( fd >= 0 )
+  close();
+
+  if( path )
   {
-      // flush ? not sure if thats done on close
-      close( fd );    // check retval!
+      delete path;
+      path = 0;
   }
 }

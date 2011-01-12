@@ -35,14 +35,25 @@ namespace fe
     class posix_serial_port : public serial_port
     {
       public:
+        explicit posix_serial_port();
         explicit posix_serial_port( std::string const &path );
 
-        virtual void read( void ) {};
-        virtual void write( void ) {};
+        virtual void set_path( std::string const &path );
+        virtual void get_path( std::string &path );
+        virtual void open( void );
+        virtual void open( std::string const &path );
+        virtual bool is_open( void );
+        virtual void close( void );
+
+        virtual void read( void ) {};       /**< TODO */
+        virtual void write( void ) {};      /**< TODO */
+
         virtual ~posix_serial_port();
 
       private:
+        void init_psp( void );
         int fd;
+        std::string const* path;
     };
 }
 

@@ -25,16 +25,44 @@
 #ifndef   __sp_h
 #define   __sp_h
 
+#include <stdexcept>
+
 namespace fe
 {
-    /* add util func to find_first() from a list of supplied paths */
+    /* TODO: add util func to find_first() from a list of supplied paths */
+
+    /* TODO: add set/get settings */
 
     class serial_port
     {
       public:
-        virtual void read( void ) {};
-        virtual void write( void ) {};
+
+        virtual void open( void )
+            { throw std::runtime_error( "open() not implemented" ); }
+
+        virtual void open( std::string const &path )
+            { (void)path; throw std::runtime_error( "open(&path) not implemented" ); }
+
+        virtual bool is_open( void )
+            { throw std::runtime_error( "is_open() not implemented" ); }
+
+        virtual void close( void )
+            { throw std::runtime_error( "close() not implemented" ); }
+
+        virtual void set_path( std::string const &path )
+            { (void)path; throw std::runtime_error( "set_path() not implemented" ); }
+
+        virtual void get_path( std::string &path )
+            { (void)path; throw std::runtime_error( "get_apth() not implemented" ); }
+
+        virtual void read( void )
+            { throw std::runtime_error( "read() not implemented" ); }
+
+        virtual void write( void )
+            { throw std::runtime_error( "write() not implemented" ); }
+
         virtual ~serial_port() {};
+
       protected:
         serial_port() {};
     };
