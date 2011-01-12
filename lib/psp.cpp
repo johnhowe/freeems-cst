@@ -134,3 +134,19 @@ posix_serial_port::~posix_serial_port()
       path = 0;
   }
 }
+
+vector<uint8_t> const* posix_serial_port::read( uint32_t timeout )
+{
+  (void)timeout;
+  throw runtime_error(
+    "'vector<uint8_t> const* posix_serial_port::read( uint32_t timeout )'"
+    " not implemented" );
+}
+
+void posix_serial_port::write( vector<uint8_t> const &data )
+{
+  (void)data;
+  throw runtime_error(
+    "void posix_serial_port::write( vector<uint8_t> const &data )'"
+    " not implemented" );
+}
