@@ -1,4 +1,5 @@
 add_library( fe endec.cpp
+                sp.cpp
                 wsp.cpp
                 psp.cpp
                 )

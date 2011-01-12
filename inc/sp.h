@@ -25,47 +25,37 @@
 #ifndef   __sp_h
 #define   __sp_h
 
+/* std:: */
+#include <string>
 #include <stdexcept>
+#include <vector>
+#include <stdint.h>
 
 namespace fe
 {
-    /* TODO: add util func to find_first() from a list of supplied paths */
+  /* TODO: add util func to find_first() from a list of supplied paths */
 
-    /* TODO: add set/get settings */
+  /* TODO: add set/get settings */
 
-    class serial_port
-    {
-      public:
+  class serial_port
+  {
+    public:
 
-        virtual void open( void )
-            { throw std::runtime_error( "open() not implemented" ); }
+      virtual void open( void );
+      virtual void open( std::string const &path );
+      virtual bool is_open( void );
+      virtual void close( void );
+      virtual void set_path( std::string const &path );
+      virtual void get_path( std::string &path );
 
-        virtual void open( std::string const &path )
-            { (void)path; throw std::runtime_error( "open(&path) not implemented" ); }
+      virtual std::vector<uint8_t> const* read( uint32_t timeout );
+      virtual void write( std::vector<uint8_t> const &data );
 
-        virtual bool is_open( void )
-            { throw std::runtime_error( "is_open() not implemented" ); }
+      virtual ~serial_port() {};
 
-        virtual void close( void )
-            { throw std::runtime_error( "close() not implemented" ); }
-
-        virtual void set_path( std::string const &path )
-            { (void)path; throw std::runtime_error( "set_path() not implemented" ); }
-
-        virtual void get_path( std::string &path )
-            { (void)path; throw std::runtime_error( "get_apth() not implemented" ); }
-
-        virtual void read( void )
-            { throw std::runtime_error( "read() not implemented" ); }
-
-        virtual void write( void )
-            { throw std::runtime_error( "write() not implemented" ); }
-
-        virtual ~serial_port() {};
-
-      protected:
-        serial_port() {};
-    };
+    protected:
+      serial_port() {};   /**< not meant to be instantiated directly */
+  };
 }
 
 #endif // __sp_h

@@ -27,33 +27,30 @@
 
 #include "sp.h"
 
-/* std:: */
-#include <string>
-
 namespace fe
 {
-    class posix_serial_port : public serial_port
-    {
-      public:
-        explicit posix_serial_port();
-        explicit posix_serial_port( std::string const &path );
+  class posix_serial_port : public serial_port
+  {
+    public:
+      explicit posix_serial_port();
+      explicit posix_serial_port( std::string const &path );
 
-        virtual void set_path( std::string const &path );
-        virtual void get_path( std::string &path );
-        virtual void open( void );
-        virtual void open( std::string const &path );
-        virtual bool is_open( void );
-        virtual void close( void );
+      virtual void set_path( std::string const &path );
+      virtual void get_path( std::string &path );
+      virtual void open( void );
+      virtual void open( std::string const &path );
+      virtual bool is_open( void );
+      virtual void close( void );
 
-        virtual void read( void ) {};       /**< TODO */
-        virtual void write( void ) {};      /**< TODO */
+      virtual std::vector<uint8_t> const* read( uint32_t timeout );
+      virtual void write( std::vector<uint8_t> const &data );
 
-        virtual ~posix_serial_port();
+      virtual ~posix_serial_port();
 
-      private:
-        void init_psp( void );
-        int fd;
-        std::string const* path;
+    private:
+      void init_psp( void );
+      int fd;
+      std::string const* path;
     };
 }
 
