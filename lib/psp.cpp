@@ -49,6 +49,7 @@ posix_serial_port::posix_serial_port( std::string const &path )
 void posix_serial_port::init_psp( void )
 {
   fd = -1;
+  assert( path.empty() );
 }
 
 bool posix_serial_port::is_open( void )
@@ -58,20 +59,16 @@ bool posix_serial_port::is_open( void )
 
 void posix_serial_port::set_path( std::string const &path )
 {
-  if( path.empty() )    /**< catch unconditionally */
-  {
-      throw runtime_error( "empty path not allowed" );
-  }
-
   if( !is_open() )
   {
+      /* allow path change */
       this->path.assign( path );
   }
 }
 
 void posix_serial_port::get_path( std::string &path )
 {
-  path.assign( this->path );
+  path.assign( this->path );    /**< clobber anything which pre-exists */
 }
 
 void posix_serial_port::open( std::string const &path )
@@ -80,30 +77,15 @@ void posix_serial_port::open( std::string const &path )
   open();
 }
 
-void posix_serial_port::close( void )
-{
-  if( is_open() )
-  {
-      lockf( fd, F_ULOCK, 0 );
-      ::close( fd );
-      fd = -1;
-  }
-}
-
 void posix_serial_port::open( void )
 {
-  if( path.empty() )
-  {
-      throw runtime_error( "serial port path is empty" );
-  }
-
   if( !is_open() )
   {
       fd = ::open( path.c_str(), O_RDWR | O_NOCTTY | O_NDELAY );
       if( (fd < 0) ||
           lockf( fd, F_TLOCK, 0 ) ) /**< non-block! */
       {
-          throw std::runtime_error( strerror(errno) );
+          throw std::runtime_error( "'"+path+"': "+strerror(errno) );
       }
 
       /* TODO: do check to make sure we've opened a serial port
@@ -111,11 +93,6 @@ void posix_serial_port::open( void )
 
       /* if this is a serial port, setup as desired */
   }
-}
-
-posix_serial_port::~posix_serial_port()
-{
-  close();
 }
 
 vector<uint8_t> const* posix_serial_port::read( uint32_t timeout )
@@ -132,4 +109,19 @@ void posix_serial_port::write( vector<uint8_t> const &data )
   throw runtime_error(
     "void posix_serial_port::write( vector<uint8_t> const &data )'"
     " not implemented" );
+}
+
+void posix_serial_port::close( void )
+{
+  if( is_open() )
+  {
+      lockf( fd, F_ULOCK, 0 );
+      ::close( fd );
+      fd = -1;
+  }
+}
+
+posix_serial_port::~posix_serial_port()
+{
+  close();
 }

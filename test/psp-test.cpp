@@ -30,16 +30,64 @@
 #include <boost/test/included/unit_test.hpp>
 #include <boost/test/unit_test.hpp>
 
+/* std:: */
+#include <string>
+
 #include "fe.h"
 using namespace std;
 using namespace fe;
 
-BOOST_AUTO_TEST_CASE( instantiate )
+BOOST_AUTO_TEST_CASE( default_ctor_no_throw )
 {
-    posix_serial_port psp();
+    posix_serial_port psp;
 }
 
-BOOST_AUTO_TEST_CASE( instantiate_with_path )
+BOOST_AUTO_TEST_CASE( ctor_allows_any_path )
 {
-    posix_serial_port psp( "path" );
+    /* bad paths are caught on open attempt */
+    posix_serial_port psp0( "path" );
+    posix_serial_port psp1( "" );
+    posix_serial_port psp2( "/dev/null" );
+}
+
+BOOST_AUTO_TEST_CASE( get_path_from_empty_ctor )
+{
+    posix_serial_port psp;
+
+    string s;
+    psp.get_path( s );
+
+    BOOST_CHECK( s.empty() );
+}
+
+BOOST_AUTO_TEST_CASE( get_path_from_ctor )
+{
+    posix_serial_port psp( "path" );    /**< not necessarily valid
+                                             (but !empty) */
+    string s;
+    psp.get_path( s );
+
+    BOOST_CHECK( s == "path" );         /**< but stored as such */
+}
+
+BOOST_AUTO_TEST_CASE( set_path_allowed_if_not_open )
+{
+    posix_serial_port psp;
+    string s;
+
+    psp.get_path( s );
+    BOOST_REQUIRE( s.empty() );
+
+    psp.set_path( "path" );
+    psp.get_path( s );
+    BOOST_CHECK( s == "path" );
+}
+
+BOOST_AUTO_TEST_CASE( open_throws_on_empty_path )
+{
+    posix_serial_port psp;
+
+    BOOST_REQUIRE_THROW(
+     psp.open(),            /**< results in 'No such file or directory' */
+     runtime_error ) ;
 }
