@@ -50,7 +50,7 @@ namespace fe
     private:
       void init_psp( void );
       int fd;
-      std::string const* path;
+      std::string path;
     };
 }
 

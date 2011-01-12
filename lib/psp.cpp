@@ -49,7 +49,6 @@ posix_serial_port::posix_serial_port( std::string const &path )
 void posix_serial_port::init_psp( void )
 {
   fd = -1;
-  path = 0;
 }
 
 bool posix_serial_port::is_open( void )
@@ -59,30 +58,20 @@ bool posix_serial_port::is_open( void )
 
 void posix_serial_port::set_path( std::string const &path )
 {
+  if( path.empty() )    /**< catch unconditionally */
+  {
+      throw runtime_error( "empty path not allowed" );
+  }
+
   if( !is_open() )
   {
-      if( path.empty() )
-      {
-          throw runtime_error( "empty path not allowed" );
-      }
-
-      if( this->path )
-      {
-          delete this->path;
-          this->path = 0;
-      }
-
-      this->path = new string( path );
+      this->path.assign( path );
   }
 }
 
 void posix_serial_port::get_path( std::string &path )
 {
-  path.clear();
-  if( this->path )
-  {
-      path.assign( *(this->path) );
-  }
+  path.assign( this->path );
 }
 
 void posix_serial_port::open( std::string const &path )
@@ -103,14 +92,14 @@ void posix_serial_port::close( void )
 
 void posix_serial_port::open( void )
 {
+  if( path.empty() )
+  {
+      throw runtime_error( "serial port path is empty" );
+  }
+
   if( !is_open() )
   {
-      if( !path )
-      {
-          throw runtime_error( "path to serial port does not exist" );
-      }
-
-      fd = ::open( path->c_str(), O_RDWR | O_NOCTTY | O_NDELAY );
+      fd = ::open( path.c_str(), O_RDWR | O_NOCTTY | O_NDELAY );
       if( (fd < 0) ||
           lockf( fd, F_TLOCK, 0 ) ) /**< non-block! */
       {
@@ -127,12 +116,6 @@ void posix_serial_port::open( void )
 posix_serial_port::~posix_serial_port()
 {
   close();
-
-  if( path )
-  {
-      delete path;
-      path = 0;
-  }
 }
 
 vector<uint8_t> const* posix_serial_port::read( uint32_t timeout )
