@@ -2,7 +2,7 @@
  * @file       endec.cpp
  * @headerfile endec.h
  * @author     sean
- * @brief      fe::endec implementation
+ * @brief      encoder/decoder implementation
  *
  * freeems-cst: freeems 'comms smoke test'
  *
@@ -44,7 +44,6 @@ uint32_t const endec::default_resv_size = (1024 * 2);
  */
 vector<uint8_t> *
   endec::decode( vector<uint8_t> const &p )
-    throw( escxor_error )
 {
     vector<uint8_t> *const v = new vector<uint8_t>();
     v->reserve( default_resv_size ); /**< reserve initial worst case capacity */

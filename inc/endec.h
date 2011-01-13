@@ -66,8 +66,7 @@ namespace fe
        * @throw escxor_error
        */
        static std::vector<uint8_t> *
-         decode( std::vector<uint8_t> const &p )
-           throw( escxor_error );
+         decode( std::vector<uint8_t> const &p );
 
     private:
       /**
