@@ -49,24 +49,26 @@ namespace fe
       };
 
       /**
-       * @brief encode a flattened packet
-       * @param[in] p reference to flattened packet
+       * @public
+       * @brief encode a raw flattened packet
+       * @param[in] raw_pkt reference to flattened packet
        * @retval vector<uint8_t> packet encoded in accordance with the freeems
        *                         core protocol spec. caller is responsible for
        *                         destruction when use is complete.
        */
       static std::vector<uint8_t> *
-        encode( std::vector<uint8_t> const &p );
+        encode( std::vector<uint8_t> const &raw_pkt );
 
       /**
-       * @brief decode to a flattened packet
-       * @param[in] p reference to encoded packet
+       * @public
+       * @brief decode to a raw flattened packet
+       * @param[in] encoded_pkt reference to encoded packet
        * @retval vector<uint8_t> decoded packet. caller is responsible for
        *                         destruction when use is complete.
        * @throw escxor_error
        */
-       static std::vector<uint8_t> *
-         decode( std::vector<uint8_t> const &p );
+      static std::vector<uint8_t> *
+        decode( std::vector<uint8_t> const &encoded_pkt );
 
     private:
       /**
