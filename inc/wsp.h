@@ -31,6 +31,7 @@ namespace fe
 {
     class win_serial_port : public serial_port
     {
+      /* TODO: when the need arises */
     };
 }
 

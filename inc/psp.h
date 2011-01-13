@@ -32,25 +32,64 @@ namespace fe
   class posix_serial_port : public serial_port
   {
     public:
-      explicit posix_serial_port();
-      explicit posix_serial_port( std::string const &path );
 
-      virtual void set_path( std::string const &path );
-      virtual void get_path( std::string &path );
+      explicit posix_serial_port( std::string const &port_path );
+
+      /**
+       * @brief fetch path
+       * @param[out] path path to serial port
+       * @retval none
+       * @throw none
+       */
+      virtual void get_path( std::string &port_path ) const;
+
+      /**
+       * @brief attempt to open port if not so already
+       * @retval none
+       * @throw std::runtime_error
+       */
       virtual void open( void );
-      virtual void open( std::string const &path );
-      virtual bool is_open( void );
+
+      /**
+       * @brief test if port is currently open
+       * @retval bool true if open, false otherwise
+       * @throw none
+       */
+      virtual bool is_open( void ) const;
+
+      /**
+       * @brief close a port if not so already
+       * @retval none
+       * @throw none
+       */
       virtual void close( void );
 
+      /**
+       * @brief pend on serial port data
+       * @param[in] timeout time to wait for data in milliseconds
+       * @note this call blocks for duration of timeout
+       * @retval vector<uint8_t> reference to set of raw bytes, will be empty
+       *                         upon timeout
+       * @throw std::runtime_error
+       */
       virtual std::vector<uint8_t> const* read( uint32_t timeout );
+
+      /**
+       * @brief write data to serial port
+       * @param[in] data raw data to write
+       * @note data is queued and this call is non-blocking
+       * @retval none
+       * @throw std::runtime_error
+       */
       virtual void write( std::vector<uint8_t> const &data );
 
       virtual ~posix_serial_port();
 
     private:
-      void init_psp( void );
+      posix_serial_port( posix_serial_port const &copy );
+      posix_serial_port( posix_serial_port &copy );
       int fd;
-      std::string path;
+      std::string const path;
     };
 }
 

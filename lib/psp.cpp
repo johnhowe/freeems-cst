@@ -35,48 +35,38 @@
 using namespace std;
 using namespace fe;
 
-posix_serial_port::posix_serial_port()
-{
-  init_psp();
-}
-
-posix_serial_port::posix_serial_port( std::string const &path )
-{
-  init_psp();
-  set_path( path );
-}
-
-void posix_serial_port::init_psp( void )
+posix_serial_port::posix_serial_port( std::string const &port_path )
+ : path( port_path )
 {
   fd = -1;
-  assert( path.empty() );
 }
 
-bool posix_serial_port::is_open( void )
+/**
+ * @brief test if port is currently open
+ * @retval bool true if open, false otherwise
+ * @throw none
+ */
+bool posix_serial_port::is_open( void ) const
 {
-    return fd > 0;
+  return fd > 0;
 }
 
-void posix_serial_port::set_path( std::string const &path )
+/**
+ * @brief fetch path
+ * @param[out] path path to serial port
+ * @retval none
+ * @throw none
+ */
+void posix_serial_port::get_path( std::string &port_path ) const
 {
-  if( !is_open() )
-  {
-      /* allow path change */
-      this->path.assign( path );
-  }
+  port_path.assign( path );    /**< clobber anything which pre-exists */
 }
 
-void posix_serial_port::get_path( std::string &path )
-{
-  path.assign( this->path );    /**< clobber anything which pre-exists */
-}
-
-void posix_serial_port::open( std::string const &path )
-{
-  set_path( path );
-  open();
-}
-
+/**
+ * @brief attempt to open port if not so already
+ * @retval none
+ * @throw std::runtime_error
+ */
 void posix_serial_port::open( void )
 {
   if( !is_open() )
@@ -88,13 +78,19 @@ void posix_serial_port::open( void )
           throw std::runtime_error( "'"+path+"': "+strerror(errno) );
       }
 
-      /* TODO: do check to make sure we've opened a serial port
-         via tcgetattr */
-
-      /* if this is a serial port, setup as desired */
+      /* setup to hardcoded values initially, 115.2 8E1
+         fred is ok with this first step */
   }
 }
 
+/**
+ * @brief pend on serial port data
+ * @param[in] timeout time to wait for data in milliseconds
+ * @note this call blocks for duration of timeout
+ * @retval vector<uint8_t> reference to set of raw bytes, will be empty
+ *                         upon timeout
+ * @throw std::runtime_error
+ */
 vector<uint8_t> const* posix_serial_port::read( uint32_t timeout )
 {
   (void)timeout;
@@ -103,6 +99,13 @@ vector<uint8_t> const* posix_serial_port::read( uint32_t timeout )
     " not implemented" );
 }
 
+/**
+ * @brief write data to serial port
+ * @param[in] data raw data to write
+ * @note data is queued and this call is non-blocking
+ * @retval none
+ * @throw std::runtime_error
+ */
 void posix_serial_port::write( vector<uint8_t> const &data )
 {
   (void)data;
@@ -111,6 +114,11 @@ void posix_serial_port::write( vector<uint8_t> const &data )
     " not implemented" );
 }
 
+/**
+ * @brief close a port if not so already
+ * @retval none
+ * @throw none
+ */
 void posix_serial_port::close( void )
 {
   if( is_open() )
