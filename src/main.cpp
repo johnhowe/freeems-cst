@@ -59,11 +59,8 @@ main( int argc,
         return 0;
     }
 
-    fe::posix_serial_port psp( "psp" );
-    psp.close();
-
-//    fe::serial_port * const sp = fe::create_serial_port( "/dev/ttyS0" );
-//    delete sp;
+    fe::serial_port *const sp = fe::create_serial_port( "/dev/ttyS0" );
+    delete sp;
 
     return 0;   /**< TODO: implement !0 on failure for future automation plans */
 }

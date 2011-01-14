@@ -39,10 +39,9 @@ main( int argc,
 {
   (void)argc, (void)argv;
 
-//  const string s = "/dev/ttyS0";
-//  serial_port * const sp = create_serial_port( s );
-//  assert( sp );
-//  delete sp;
+  fe::serial_port *const sp = fe::create_serial_port( "/dev/ttyS0" );
+  assert( sp );
+  delete sp;
 
   return 0;
 }
