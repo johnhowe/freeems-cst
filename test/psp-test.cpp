@@ -55,5 +55,42 @@ BOOST_AUTO_TEST_CASE( get_path )
     BOOST_CHECK( s == "path" );
 }
 
-/* TODO: multiple opens allowed  */
-/* TODO: multiple closes allowed */
+BOOST_AUTO_TEST_CASE( multiple_opens_allowed )
+{
+    /* requires a valid serial path, not sure how
+       to do this generically. everyone's setup is
+       different. I wish there was a way that a test
+       (this one) could be marked explicit like
+       NUnit allows */
+    posix_serial_port psp( "/dev/ttyS0" );
+    BOOST_REQUIRE( !psp.is_open() );
+
+    psp.open();
+    BOOST_CHECK( psp.is_open() );
+
+    psp.open();
+    BOOST_CHECK( psp.is_open() );
+
+    psp.open();
+    BOOST_CHECK( psp.is_open() );
+
+    /*  ... and on and on */
+}
+
+BOOST_AUTO_TEST_CASE( multiple_closes_allowed )
+{
+    posix_serial_port psp( "/dev/ttyS0" );
+    psp.open();
+    BOOST_REQUIRE( psp.is_open() );
+
+    psp.close();
+    BOOST_CHECK( !psp.is_open() );
+
+    psp.close();
+    BOOST_CHECK( !psp.is_open() );
+
+    psp.close();
+    BOOST_CHECK( !psp.is_open() );
+
+    /*  ... and on and on */
+}
