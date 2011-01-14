@@ -124,18 +124,15 @@ void posix_serial_port::open( void )
 }
 
 /**
- * @brief pend on serial port data
- * @param[in] timeout time to wait for data in milliseconds
- * @note this call blocks for duration of timeout
- * @retval vector<uint8_t> reference to set of raw bytes, will be empty
- *                         upon timeout
+ * @brief non-blocking fetch of data from serial port
+ * @retval vector<uint8_t> reference to set of raw bytes caller
+ *                         is responsible for disposal
  * @throw std::runtime_error
  */
-vector<uint8_t> const* posix_serial_port::read( uint32_t timeout )
+vector<uint8_t> const* posix_serial_port::read()
 {
-  (void)timeout;
   throw runtime_error(
-    "'vector<uint8_t> const* posix_serial_port::read( uint32_t timeout )'"
+    "'vector<uint8_t> const* posix_serial_port::read()'"
     " not implemented" );
 }
 

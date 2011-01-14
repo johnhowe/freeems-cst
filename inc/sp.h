@@ -77,14 +77,12 @@ namespace fe
       virtual void get_path( std::string &path ) const;
 
       /**
-       * @brief pend on serial port data
-       * @param[in] timeout time to wait for data in milliseconds
-       * @note this call blocks for duration of timeout
-       * @retval vector<uint8_t> reference to set of raw bytes, will be empty
-       *                         upon timeout
+       * @brief non-blocking fetch of data from serial port
+       * @retval vector<uint8_t> reference to set of raw bytes caller
+       *                         is responsible for disposal
        * @throw std::runtime_error
        */
-      virtual std::vector<uint8_t> const* read( uint32_t timeout ) = 0;
+      virtual std::vector<uint8_t> const* read() = 0;
 
       /**
        * @brief write data to serial port
