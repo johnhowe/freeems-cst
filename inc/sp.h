@@ -114,7 +114,7 @@ namespace fe
    * @retval serial_port caller is responsible for disposal
    */
   serial_port *
-    create_serial_port( std::string const &path );  /**< TODO */
+    create_serial_port( std::string const &path );
 
 }
 

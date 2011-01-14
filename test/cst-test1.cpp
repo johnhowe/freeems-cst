@@ -24,8 +24,12 @@
  *
  */
 
-#include <cassert>
 #include "fe.h"
+
+/* std:: */
+#include <cassert>
+#include <memory>
+
 using namespace std;
 using namespace fe;
 
@@ -35,22 +39,10 @@ main( int argc,
 {
   (void)argc, (void)argv;
 
-  /* in the future this operation will be aliased under a
-     find_first operation which abstracts away the platform
-     specifics:
-
-     serial_port *const sp = find_first( ordered_path_collection );
-     if( sp == 0 )
-     {
-        // fail
-     }
-
-      */
-
-  /* otherwise, brute force it until the above is implemented */
-  serial_port *const sp = new posix_serial_port( "/dev/ttyS0" );
-  assert( sp );
-  delete sp;
+//  const string s = "/dev/ttyS0";
+//  serial_port * const sp = create_serial_port( s );
+//  assert( sp );
+//  delete sp;
 
   return 0;
 }

@@ -26,6 +26,7 @@
 #define   __fe_h
 
 #include "endec.h"
+#include "sp.h"
 #include "psp.h"
 #include "wsp.h"
 

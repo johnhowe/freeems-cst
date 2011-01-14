@@ -31,13 +31,12 @@
 #include <boost/program_options/parsers.hpp>
 namespace po = boost::program_options;
 
-/* boost::asio:: */
-#include <boost/asio/serial_port.hpp>
-using namespace boost::asio;
-
 /* std:: */
 #include <string>
 #include <iostream>
+
+/* fe:: */
+#include "fe.h"
 
 int
 main( int argc,
@@ -60,20 +59,11 @@ main( int argc,
         return 0;
     }
 
-    io_service io;
-    serial_port sp( io );
+    fe::posix_serial_port psp( "psp" );
+    psp.close();
 
-    sp.open( "/dev/ttyS0" );       /**< attempt to open a port */
-
-    /* start with bunch of repetitive stx's and etx's only */
-
-    /* move to empty pkts */
-
-    /* move to echo pkts */
-
-    /* move to ... */
-
-    sp.close();
+//    fe::serial_port * const sp = fe::create_serial_port( "/dev/ttyS0" );
+//    delete sp;
 
     return 0;   /**< TODO: implement !0 on failure for future automation plans */
 }
