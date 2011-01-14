@@ -27,11 +27,9 @@
 
 #include "endec.h"
 #include "sp.h"
-#include "psp.h"
-#include "wsp.h"
 
 /**
- * statically determine element size of 1d array
+ * statically determine element count of 1d array
  */
 #define EDIM( arg_ )        (sizeof(arg_)/sizeof(arg_[0]))
 

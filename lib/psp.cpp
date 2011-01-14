@@ -32,8 +32,7 @@
 #include <fcntl.h>
 #include <cerrno>
 #include <cstring>
-#include <cassert>
-#include <unistd.h>
+#include <termios.h>
 
 using namespace std;
 using namespace fe;
@@ -70,8 +69,26 @@ void posix_serial_port::open( void )
           throw std::runtime_error( "'"+path+"': "+strerror(errno) );
       }
 
+      /* fetch current set of values */
+      struct termios options;
+      if( tcgetattr( fd, &options ) )
+      {
+          /* highly likely throw will occur here if
+             the specified path is not to a serial port */
+          throw std::runtime_error( strerror(errno) );
+      }
+
+      /* raw input */
+      options.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
+
       /* setup to hardcoded values initially, 115.2 8E1
          fred is ok with this first step */
+
+      /* store new attributes */
+      if( tcsetattr( fd, TCSANOW, &options ) )
+      {
+          throw std::runtime_error( strerror(errno) );
+      }
   }
 }
 
