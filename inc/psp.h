@@ -32,16 +32,7 @@ namespace fe
   class posix_serial_port : public serial_port
   {
     public:
-
       explicit posix_serial_port( std::string const &port_path );
-
-      /**
-       * @brief fetch path
-       * @param[out] path path to serial port
-       * @retval none
-       * @throw none
-       */
-      virtual void get_path( std::string &port_path ) const;
 
       /**
        * @brief attempt to open port if not so already
@@ -86,10 +77,7 @@ namespace fe
       virtual ~posix_serial_port();
 
     private:
-      posix_serial_port( posix_serial_port const &copy );
-      posix_serial_port( posix_serial_port &copy );
       int fd;
-      std::string const path;
     };
 }
 

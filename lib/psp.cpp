@@ -25,6 +25,9 @@
 
 #include "psp.h"
 
+/* std:: */
+#include <stdexcept>
+
 /* posix */
 #include <fcntl.h>
 #include <cerrno>
@@ -36,7 +39,7 @@ using namespace std;
 using namespace fe;
 
 posix_serial_port::posix_serial_port( std::string const &port_path )
- : path( port_path )
+ : serial_port( port_path )
 {
   fd = -1;
 }
@@ -49,17 +52,6 @@ posix_serial_port::posix_serial_port( std::string const &port_path )
 bool posix_serial_port::is_open( void ) const
 {
   return fd > 0;
-}
-
-/**
- * @brief fetch path
- * @param[out] path path to serial port
- * @retval none
- * @throw none
- */
-void posix_serial_port::get_path( std::string &port_path ) const
-{
-  port_path.assign( path );    /**< clobber anything which pre-exists */
 }
 
 /**
@@ -123,7 +115,7 @@ void posix_serial_port::close( void )
 {
   if( is_open() )
   {
-      lockf( fd, F_ULOCK, 0 );
+      lockf( fd, F_ULOCK, 0 ); /**< TODO: check retvals and throw on failure! */
       ::close( fd );
       fd = -1;
   }
@@ -131,5 +123,10 @@ void posix_serial_port::close( void )
 
 posix_serial_port::~posix_serial_port()
 {
-  close();
+  close();      /**< TODO: decide on how to handle if close()
+                     throws: swallow? - normally, a user of
+                     this class should close() ahead of the destructor
+                     so that proper application specific actions
+                     can be taken - not good practice to depend
+                     on the destructor to close() for you */
 }

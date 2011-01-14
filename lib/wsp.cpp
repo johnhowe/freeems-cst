@@ -24,3 +24,17 @@
  */
 
 #include "wsp.h"
+
+/* std:: */
+#include <stdexcept>
+
+using namespace std;
+using namespace fe;
+
+win_serial_port::win_serial_port( std::string const &port_path )
+ : serial_port( port_path )
+{
+  throw runtime_error(
+    "win_serial_port::win_serial_port( std::string const &port_path )'"
+    " not implemented" );
+}

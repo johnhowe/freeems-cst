@@ -31,7 +31,50 @@ namespace fe
 {
     class win_serial_port : public serial_port
     {
-      /* TODO: when the need arises */
+    public:
+      explicit win_serial_port( std::string const &port_path );
+
+      /**
+       * @brief attempt to open port if not so already
+       * @retval none
+       * @throw std::runtime_error
+       */
+      virtual void open( void );
+
+      /**
+       * @brief test if port is currently open
+       * @retval bool true if open, false otherwise
+       * @throw none
+       */
+      virtual bool is_open( void ) const;
+
+      /**
+       * @brief close a port if not so already
+       * @retval none
+       * @throw none
+       */
+      virtual void close( void );
+
+      /**
+       * @brief pend on serial port data
+       * @param[in] timeout time to wait for data in milliseconds
+       * @note this call blocks for duration of timeout
+       * @retval vector<uint8_t> reference to set of raw bytes, will be empty
+       *                         upon timeout
+       * @throw std::runtime_error
+       */
+      virtual std::vector<uint8_t> const* read( uint32_t timeout );
+
+      /**
+       * @brief write data to serial port
+       * @param[in] data raw data to write
+       * @note data is queued and this call is non-blocking
+       * @retval none
+       * @throw std::runtime_error
+       */
+      virtual void write( std::vector<uint8_t> const &data );
+
+      virtual ~win_serial_port();
     };
 }
 

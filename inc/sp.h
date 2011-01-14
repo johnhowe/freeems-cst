@@ -27,9 +27,11 @@
 
 /* std:: */
 #include <string>
-#include <stdexcept>
 #include <vector>
 #include <stdint.h>
+
+/* boost:: */
+#include <boost/utility.hpp>
 
 namespace fe
 {
@@ -42,7 +44,7 @@ namespace fe
    * @warning this or any of its derivatives are not guaranteed to
    *          be threadsafe
    */
-  class serial_port
+  class serial_port : private boost::noncopyable
   {
     public:
       /**
@@ -50,21 +52,21 @@ namespace fe
        * @retval none
        * @throw std::runtime_error
        */
-      virtual void open( void );
+      virtual void open( void ) = 0;
 
       /**
        * @brief test if port is currently open
        * @retval bool true if open, false otherwise
        * @throw none
        */
-      virtual bool is_open( void ) const;
+      virtual bool is_open( void ) const = 0;
 
       /**
        * @brief close a port if not so already
        * @retval none
        * @throw none
        */
-      virtual void close( void );
+      virtual void close( void ) = 0;
 
       /**
        * @brief fetch path
@@ -82,7 +84,7 @@ namespace fe
        *                         upon timeout
        * @throw std::runtime_error
        */
-      virtual std::vector<uint8_t> const* read( uint32_t timeout );
+      virtual std::vector<uint8_t> const* read( uint32_t timeout ) = 0;
 
       /**
        * @brief write data to serial port
@@ -91,20 +93,13 @@ namespace fe
        * @retval none
        * @throw std::runtime_error
        */
-      virtual void write( std::vector<uint8_t> const &data );
+      virtual void write( std::vector<uint8_t> const &data ) = 0;
 
       virtual ~serial_port() {};
 
     protected:
-      explicit serial_port() {};   /**< not meant to be instantiated directly */
-
-      /**
-       * serial ports cannot be copied. be aware that passing by value
-       * is also automatically prohibited too
-       */
-      serial_port( serial_port const &copy );
-      serial_port( serial_port &copy );
-
+      explicit serial_port( std::string const &port_path );
+      std::string const path;
   };
 
   /**
