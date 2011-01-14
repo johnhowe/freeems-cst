@@ -69,6 +69,12 @@ void posix_serial_port::open( void )
           throw std::runtime_error( "'"+path+"': "+strerror(errno) );
       }
 
+      /* all reads are NON-BLOCKING */
+      if( fcntl( fd, F_SETFL, FNDELAY ) )
+      {
+          throw std::runtime_error( strerror(errno) );
+      }
+
       /* fetch current set of values */
       struct termios options;
       if( tcgetattr( fd, &options ) )
@@ -78,17 +84,42 @@ void posix_serial_port::open( void )
           throw std::runtime_error( strerror(errno) );
       }
 
-      /* raw input */
+      /* input modes: */
+      options.c_iflag |= IGNBRK;    /**< ignore breaks */
+      options.c_iflag |= IGNPAR;    /**< ignore parity errs */
+
+      /* output modes: */
+      options.c_oflag &= ~OPOST;    /**< raw */
+
+      /* control modes: */
+      options.c_cflag &= ~CSIZE;
+      options.c_cflag |=  CS8;      /**< 8 bits */
+      options.c_cflag |=  PARENB;   /**< parity enabled .. */
+      options.c_cflag |=  PARODD;   /**< .. odd */
+      options.c_cflag &= ~CSTOPB;   /**< 1 stop bit */
+      options.c_cflag |=  CREAD;    /**< enb receiver */
+      options.c_cflag |=  CLOCAL;   /**< ignore control lines */
+
+      /* local modes: */
       options.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
 
-      /* setup to hardcoded values initially, 115.2 8E1
-         fred is ok with this first step */
+      if( cfsetspeed( &options, B115200 ) )
+      {
+          /* unable to set speed */
+          throw std::runtime_error( strerror(errno) );
+      }
 
       /* store new attributes */
       if( tcsetattr( fd, TCSANOW, &options ) )
       {
           throw std::runtime_error( strerror(errno) );
       }
+
+      /* TODO: man pages specify that the call to tcsetattr()
+         will not fail if ANY of the items in the termios
+         are set correctly. this means that a failure is only
+         reported if ALL fail - it is recommended to read back
+         the termios struct and validate that the settings match */
   }
 }
 
