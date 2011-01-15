@@ -78,8 +78,9 @@ namespace fe
 
       /**
        * @brief non-blocking fetch of data from serial port
-       * @retval vector<uint8_t> reference to set of raw bytes caller
-       *                         is responsible for disposal
+       * @retval vector<uint8_t> reference to set of raw bytes for which
+       *                         caller is responsible for disposal. NULL
+       *                         otherwise (no data available).
        * @throw std::runtime_error
        */
       virtual std::vector<uint8_t> const* read() = 0;

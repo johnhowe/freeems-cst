@@ -27,12 +27,14 @@
 
 /* std:: */
 #include <stdexcept>
+#include <cassert>
 
 /* posix */
 #include <fcntl.h>
 #include <cerrno>
 #include <cstring>
 #include <termios.h>
+#include <unistd.h>
 
 using namespace std;
 using namespace fe;
@@ -66,13 +68,13 @@ void posix_serial_port::open( void )
       if( (fd < 0) ||
           lockf( fd, F_TLOCK, 0 ) ) /**< non-block! */
       {
-          throw std::runtime_error( "'"+path+"': "+strerror(errno) );
+          throw runtime_error( "'"+path+"': "+strerror(errno) );
       }
 
       /* all reads are NON-BLOCKING */
       if( fcntl( fd, F_SETFL, FNDELAY ) )
       {
-          throw std::runtime_error( strerror(errno) );
+          throw runtime_error( strerror(errno) );
       }
 
       /* fetch current set of values */
@@ -81,7 +83,7 @@ void posix_serial_port::open( void )
       {
           /* highly likely throw will occur here if
              the specified path is not to a serial port */
-          throw std::runtime_error( strerror(errno) );
+          throw runtime_error( strerror(errno) );
       }
 
       /* input modes: */
@@ -106,13 +108,13 @@ void posix_serial_port::open( void )
       if( cfsetspeed( &options, B115200 ) )
       {
           /* unable to set speed */
-          throw std::runtime_error( strerror(errno) );
+          throw runtime_error( strerror(errno) );
       }
 
       /* store new attributes */
       if( tcsetattr( fd, TCSANOW, &options ) )
       {
-          throw std::runtime_error( strerror(errno) );
+          throw runtime_error( strerror(errno) );
       }
 
       /* TODO: man pages specify that the call to tcsetattr()
@@ -125,15 +127,31 @@ void posix_serial_port::open( void )
 
 /**
  * @brief non-blocking fetch of data from serial port
- * @retval vector<uint8_t> reference to set of raw bytes caller
- *                         is responsible for disposal
+ * @retval vector<uint8_t> reference to set of raw bytes for which
+ *                         caller is responsible for disposal. NULL
+ *                         otherwise (no data available).
  * @throw std::runtime_error
  */
 vector<uint8_t> const* posix_serial_port::read()
 {
-  throw runtime_error(
-    "'vector<uint8_t> const* posix_serial_port::read()'"
-    " not implemented" );
+  vector<uint8_t> const* retval = 0;
+
+  if( is_open() )
+  {
+      uint8_t rd_buf[1024 * 2];
+      ssize_t const rd_cnt = ::read( fd, rd_buf, sizeof(rd_buf) );
+      if( rd_cnt < 0 )
+      {
+          throw runtime_error( strerror(errno) );
+      }
+
+      if( rd_cnt > 0 )  /**< return null on 0 length */
+      {
+          retval = new vector<uint8_t>( rd_buf, rd_buf+rd_cnt );
+      }
+  }
+
+  return retval;
 }
 
 /**
@@ -145,10 +163,27 @@ vector<uint8_t> const* posix_serial_port::read()
  */
 void posix_serial_port::write( vector<uint8_t> const &data )
 {
-  (void)data;
-  throw runtime_error(
-    "void posix_serial_port::write( vector<uint8_t> const &data )'"
-    " not implemented" );
+  size_t const buf_size = data.size();
+  /* avoid undefined behavior of writing O length buffers to
+     !regular files, see man pg for clarification while paying
+     special attention to the RETURN VALUE section */
+  if( is_open() && (buf_size > 0) )
+  {
+      ssize_t const wr_cnt = ::write( fd, &data[0], buf_size );
+      if( wr_cnt < 0 )
+      {
+          throw runtime_error( strerror(errno) );
+      }
+
+      if( static_cast<size_t>(wr_cnt) != buf_size )
+      {
+          /* iaw man pages, this is also considered a failure
+             since the wr_cnt IS >0 BUT != the actual buffer size.
+             I've seen this happen before when writing large chunks
+             to a usb adapter and it's yanked mid write */
+          throw runtime_error( "wtf: buf_size != wr_cnt" );
+      }
+  }
 }
 
 /**
