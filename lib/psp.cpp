@@ -66,20 +66,20 @@ void posix_serial_port::open( void )
   {
       fd = ::open( path.c_str(), O_RDWR | O_NOCTTY | O_NDELAY );
       if( (fd < 0) ||
-          lockf( fd, F_TLOCK, 0 ) ) /**< non-block! */
+          ::lockf( fd, F_TLOCK, 0 ) ) /**< non-block! */
       {
           throw runtime_error( "'"+path+"': "+strerror(errno) );
       }
 
       /* all reads are NON-BLOCKING */
-      if( fcntl( fd, F_SETFL, FNDELAY ) )
+      if( ::fcntl( fd, F_SETFL, FNDELAY ) )
       {
           throw runtime_error( strerror(errno) );
       }
 
       /* fetch current set of values */
       struct termios options;
-      if( tcgetattr( fd, &options ) )
+      if( ::tcgetattr( fd, &options ) )
       {
           /* highly likely throw will occur here if
              the specified path is not to a serial port */
@@ -105,14 +105,14 @@ void posix_serial_port::open( void )
       /* local modes: */
       options.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
 
-      if( cfsetspeed( &options, B115200 ) )
+      if( ::cfsetspeed( &options, B115200 ) )
       {
           /* unable to set speed */
           throw runtime_error( strerror(errno) );
       }
 
       /* store new attributes */
-      if( tcsetattr( fd, TCSANOW, &options ) )
+      if( ::tcsetattr( fd, TCSANOW, &options ) )
       {
           throw runtime_error( strerror(errno) );
       }
@@ -136,19 +136,21 @@ vector<uint8_t> const* posix_serial_port::read()
 {
   vector<uint8_t> const* retval = 0;
 
-  if( is_open() )
+  if( !is_open() )
   {
-      uint8_t rd_buf[1024 * 2];
-      ssize_t const rd_cnt = ::read( fd, rd_buf, sizeof(rd_buf) );
-      if( rd_cnt < 0 )
-      {
-          throw runtime_error( strerror(errno) );
-      }
+      throw runtime_error( "port is closed" );
+  }
 
-      if( rd_cnt > 0 )  /**< return null on 0 length */
-      {
-          retval = new vector<uint8_t>( rd_buf, rd_buf+rd_cnt );
-      }
+  uint8_t rd_buf[1024 * 2];
+  ssize_t const rd_cnt = ::read( fd, rd_buf, sizeof(rd_buf) );
+  if( rd_cnt < 0 )
+  {
+      throw runtime_error( strerror(errno) );
+  }
+
+  if( rd_cnt > 0 )  /**< return null on 0 length */
+  {
+      retval = new vector<uint8_t>( rd_buf, rd_buf+rd_cnt );
   }
 
   return retval;
@@ -163,11 +165,16 @@ vector<uint8_t> const* posix_serial_port::read()
  */
 void posix_serial_port::write( vector<uint8_t> const &data )
 {
-  size_t const buf_size = data.size();
+  if( !is_open() )
+  {
+      throw runtime_error( "port is closed" );
+  }
+
   /* avoid undefined behavior of writing O length buffers to
      !regular files, see man pg for clarification while paying
      special attention to the RETURN VALUE section */
-  if( is_open() && (buf_size > 0) )
+  size_t const buf_size = data.size();
+  if( buf_size > 0 )
   {
       ssize_t const wr_cnt = ::write( fd, &data[0], buf_size );
       if( wr_cnt < 0 )
@@ -195,18 +202,32 @@ void posix_serial_port::close( void )
 {
   if( is_open() )
   {
-      lockf( fd, F_ULOCK, 0 ); /**< TODO: check retvals and throw on failure! */
-      ::close( fd );
+      if( ::lockf( fd, F_ULOCK, 0 ) )
+      {
+          throw runtime_error( strerror(errno) );
+      }
+      if( ::close( fd ) )
+      {
+          throw runtime_error( strerror(errno) );
+      }
       fd = -1;
   }
 }
 
 posix_serial_port::~posix_serial_port()
 {
-  close();      /**< TODO: decide on how to handle if close()
-                     throws: swallow? - normally, a user of
-                     this class should close() ahead of the destructor
-                     so that proper application specific actions
-                     can be taken - not good practice to depend
-                     on the destructor to close() for you */
+  /* @note intended usage is to close() before destroy so
+     you have the opportunity to capture anything thrown
+     and handle in an application specific manner
+
+     you've been warned
+     */
+  try
+  {
+      close();
+  }
+  catch( ... )
+  {
+      /* gulp ... yummy */
+  }
 }
