@@ -31,6 +31,7 @@
 #include <memory>
 #include <stdint.h>
 #include <iostream>
+#include <algorithm>
 
 /* posix */
 #include <unistd.h>
@@ -56,8 +57,9 @@ main( int argc,
   vector<uint8_t> const *resp = sp->read();
   assert( resp );
   assert( resp->size() == sizeof(d) );
-  /* TODO: is it really a mirror of d[]? */
+  assert( equal( v.begin(), v.end(), resp->begin() ) );
   delete resp;
+  sp->close();
 
   return 0;
 }
