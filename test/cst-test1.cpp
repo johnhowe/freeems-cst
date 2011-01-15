@@ -29,6 +29,11 @@
 /* std:: */
 #include <cassert>
 #include <memory>
+#include <stdint.h>
+#include <iostream>
+
+/* posix */
+#include <unistd.h>
 
 using namespace std;
 using namespace fe;
@@ -41,6 +46,18 @@ main( int argc,
 
   auto_ptr<serial_port> const sp( create_serial_port( "/dev/ttyS0" ) );
   assert( sp.get() );
+  sp->open();
+
+  /* attempt quick-n-dirty loopback */
+  uint8_t const d[] = "testing ... ";
+  vector<uint8_t> const v( d, d+sizeof(d) );
+  sp->write( v );
+  usleep( 50000 );  /* block 50ms */
+  vector<uint8_t> const *resp = sp->read();
+  assert( resp );
+  assert( resp->size() == sizeof(d) );
+  /* TODO: is it really a mirror of d[]? */
+  delete resp;
 
   return 0;
 }
