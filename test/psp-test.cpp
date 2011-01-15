@@ -94,3 +94,22 @@ BOOST_AUTO_TEST_CASE( multiple_closes_allowed )
 
     /*  ... and on and on */
 }
+
+BOOST_AUTO_TEST_CASE( throws_on_read_when_port_closed )
+{
+    posix_serial_port psp( "/dev/ttyS0" );
+    BOOST_REQUIRE( !psp.is_open() );
+
+    vector<uint8_t> const *v = 0;
+    BOOST_REQUIRE_THROW( v = psp.read(), runtime_error ) ;
+}
+
+BOOST_AUTO_TEST_CASE( throws_on_write_when_port_closed )
+{
+    posix_serial_port psp( "/dev/ttyS0" );
+    BOOST_REQUIRE( !psp.is_open() );
+
+    uint8_t data[] = {0x00, 0x01, 0x02, 0x03};
+    vector<uint8_t> const v( data, data+sizeof(data) );
+    BOOST_REQUIRE_THROW( psp.write( v ), runtime_error ) ;
+}
