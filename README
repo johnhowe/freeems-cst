@@ -18,7 +18,7 @@ Fedora specific instructions:
         yum install gcc
 
 Debian specific boost library fetch instructions:
-    TODO
+    aptitude install libboost-signals-dev libboost-program-options-dev libboost-test-dev libboost-system-dev cmake gcc
 
 Building under Linux:
     I usually do out of source builds, so make a dir outside of
